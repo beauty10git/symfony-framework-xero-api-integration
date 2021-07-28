@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Bootstrap Example</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+</head>
+<body>
+
+<div class="container">
+<h2>Add Invoice</h2>
+{% if app.session.flashBag.has('success') %}
+        <div class="alert alert-success">
+            {% for msg in app.session.flashBag.get('success') %}
+                {{ msg }}
+            {% endfor %}
+        </div>
+{% endif %}
+<form action="{{ path('add_invoice') }}" method="post">
+  <div class="form-group">
+    <input type = "hidden" name = "contact_id" value = "{{contact_id}}">
+    <input type = "hidden" name = "token" value = "{{token}}">
+  </div>
+  <div class="form-group form-check">
+    <label for="exampleInputEmail1">Item Description</label>
+    <input type="text" class="form-control" placeholder="Enter Item Description" name = "description" required>
+  </div>
+  <div class="form-group form-check">
+    <label for="exampleInputEmail1">Item Price</label>
+    <input type="text" class="form-control" placeholder="Enter Item Price" name = "due" required>
+  </div>
+  <div class="form-group form-check">
+    <label for="exampleInputEmail1">Item Quantity</label>
+    <input type="text" class="form-control" placeholder="Enter Item Quantity" name = "quantity" required>
+  </div>
+  <div class="form-group form-check">
+    <label for="exampleInputEmail1">Invoice Date</label>
+    <input type="date" class="form-control"  placeholder="Enter Invoice Date" name = "date" required min={{ 'now'|date('Y-m-d') }} id = "date">
+  </div>
+  <div class="form-group form-check">
+    <label for="exampleInputEmail1">Invoice Due Date</label>
+    <input type="date" class="form-control" placeholder="Enter Invoice Due Date" name = "dueDate" required min={{ 'now'|date('Y-m-d') }} id = "dueDate">
+  </div>
+
+  <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+
+  <h1>All Invoices</h1>
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Invoice Number</th>
+        <th scope="col">To</th>
+        <th scope="col">Invoice Date</th>
+        <th scope="col">Invoice Due Date</th>
+        <th scope="col">Quantity</th>
+        <th scope="col">Item Price</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for invoice in customer_invoices.Invoices %}
+          <tr>
+              <th scope="row">1</th>
+              <td>{{invoice.InvoiceNumber}}</td>
+              <td>{{invoice.Contact.Name}}</td>
+              <td>
+                {% set dateTime = date(invoice.DateString) %}
+                <span class="day">{{ dateTime | date('d') }}</span>
+                <span class="month">{{ dateTime | date('F') }}</span>
+                <span class="year">{{ dateTime | date('Y') }}</span>
+              </td>
+              <td>
+                {% set dateTime = date(invoice.DueDateString) %}
+                <span class="day">{{ dateTime | date('d') }}</span>
+                <span class="month">{{ dateTime | date('F') }}</span>
+                <span class="year">{{ dateTime | date('Y') }}</span>
+              </td>
+              <td>{{invoice.LineItems[0].Quantity|number_format(2, '.', ',')}}</td>
+              <td>{{invoice.CurrencyCode}} {{invoice.AmountDue|number_format(2, '.', ',')}}</td>
+
+          </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+<script language="javascript">
+    $(document).ready(function () {
+        $("#txtdate").datepicker({
+            minDate: 0
+        });
+    });
+</script>
+</body>
+</html>
